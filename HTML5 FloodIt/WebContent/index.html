@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="ISO-8859-1" />
+		<title>HTML5 Flood</title>
+		<script type="text/javascript" src="./js/mootools/mootools-core-1.4.1-full-compat.js"></script>
+		<link href="./css/main.css" rel="Stylesheet" type="text/css" />
+	</head>
+	<body>
+		<canvas id="mainCanvas"></canvas><br />
+		<div id="controlPanelCanvas"></div>
+		
+		<script type="text/javascript" src="./js/seedrandom-min.js"></script>
+		<script type="text/javascript" src="./js/game/GameGrid.js"></script>
+		<script type="text/javascript" src="./js/game/ControlPanel.js"></script>
+
+		<script type="text/javascript">
+			var gameGrid;
+			var controlPanel;
+			
+			var gameSeed = null;
+			
+			window.addEvent("domready", function() {
+				if (gameSeed == null) {
+					gameSeed = 1;
+				}
+				
+				gameGrid = new GameGrid(gameSeed);
+				gameGrid.drawGrid(document.id("mainCanvas"));
+				gameGrid.addEvent("onColorChanged", handleGridColorChanged);
+				
+				controlPanel = new ControlPanel(document.id("controlPanelCanvas"), GameColors);
+				controlPanel.addEvent("onTrigger", handleControlPanelTrigger);
+			});
+			
+			function handleGridColorChanged(args) {
+				gameGrid.drawGrid(document.id("mainCanvas"));
+			}
+			
+			function handleControlPanelTrigger(args) {
+				var color = args.color;
+				if (color != gameGrid.getCurrentColor()) {
+					gameGrid.changeColor(args.color);
+				}
+			}
+		</script>
+	</body>
+</html>

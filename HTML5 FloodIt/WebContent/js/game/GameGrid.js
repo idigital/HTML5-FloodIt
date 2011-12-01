@@ -101,7 +101,8 @@ var GameGrid = new Class({
 		var cornerNode = this.gameNodes[0][0];
 		var oldColor = cornerNode.getColor();
 		
-		this.recursiveFloodFill(0, 0, oldColor, newColor);
+		//this.recursiveFloodFill(0, 0, oldColor, newColor);
+		this.queueBasedFloodFill(0, 0, oldColor, newColor);
 		var args = new ColorChangedEventArgs(oldColor, newColor);
 		this.fireEvent("onColorChanged", args);
 	},
@@ -139,7 +140,6 @@ var GameGrid = new Class({
 		
 		var node = this.gameNodes[nodeRow][nodeCol];
 		if (node.getColor() != targetColor) {
-			console.log(node.getColor() + " != " + targetColor);
 			return;
 		}
 		
@@ -150,6 +150,73 @@ var GameGrid = new Class({
 		this.recursiveFloodFill(nodeRow, nodeCol - 1, targetColor, replacementColor);
 		this.recursiveFloodFill(nodeRow, nodeCol + 1, targetColor, replacementColor);
 		
+	},
+	
+	queueBasedFloodFill: function(nodeRow, nodeCol, targetColor, replacementColor) {
+		/*
+		    Algorithm from same wikipedia article:
+		  	Flood-fill (node, target-colour, replacement-colour):
+			 1. Set Q to the empty queue.
+			 2. If the colour of node is not equal to target-colour, return.
+			 3. Add node to the end of Q.
+			 4. While Q is not empty: 
+			 5.     Set n equal to the first element of Q
+			 6.     If the colour of n is equal to target-colour:
+			 7.         Set the colour of n to replacement-colour.
+			 8.         If the colour of the node to the west of n is target-colour:
+			 9.             Add that node to the end of Q
+			10.         If the colour of the node to the east of n is target-colour: 
+			11.             Add that node to the end of Q
+			12.         If the colour of the node to the north of n is target-colour:
+			13.             Add that node to the end of Q
+			14.         If the colour of the node to the south of n is target-colour:
+			15.             Add that node to the end of Q
+			16.     Remove first element from Q
+			17. Return.
+		 */
+		var queue = [];
+		
+		var allNodes = this.gameNodes;
+		var node = allNodes[nodeRow][nodeCol];
+		if (node.getColor() != targetColor) {
+			return;
+		}
+		
+		queue.push(node);
+		while (queue.length > 0) {
+			var curNode = queue[0];
+			if (curNode.getColor() == targetColor) {
+				curNode.setColor(replacementColor);
+				if (nodeCol > 0) {
+					var westNode = allNodes[nodeRow][nodeCol - 1];
+					if (westNode.getColor() == targetColor) {
+						queue.push(westNode);
+					}
+				}
+				
+				if (nodeCol < (this.numCols - 1)) {
+					var eastNode = allNodes[nodeRow][nodeCol + 1];
+					if (eastNode.getColor() == targetColor) {
+						queue.push(eastNode);
+					}
+				}
+				
+				if (nodeRow > 0) {
+					var northNode = allNodes[nodeRow - 1][nodeCol];
+					if (northNode.getColor() == targetColor) {
+						queue.push(northNode);
+					}
+				}
+				
+				if (nodeRow < (this.numRows - 1)) {
+					var southNode = allNodes[nodeRow + 1][nodeCol];
+					if (southNode.getColor() == targetColor) {
+						queue.push(southNode);
+					}
+				}
+			}
+			queue.shift();
+		}
 	}
 });
 

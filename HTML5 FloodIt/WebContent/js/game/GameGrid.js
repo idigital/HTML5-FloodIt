@@ -33,9 +33,9 @@ var GameGrid = new Class({
 		this.gameSeed = pGameSeed;
 		Math.seedrandom(this.gameSeed);
 		this.gameNodes = new Array(this.numRows);
-		for (var i = 0; i < this.numRows; ++i) {
+		for (var i = 0; i < this.numCols; ++i) {
 			this.gameNodes[i] = new Array(this.numCols);
-			for (var j = 0; j < this.numCols; ++j) {
+			for (var j = 0; j < this.numRows; ++j) {			
 				var randIdx = Math.floor(Math.random() * GameColors.length);
 				var randColor = GameColors[randIdx];
 				var node = new GameNode(i, j, randColor);
@@ -62,11 +62,11 @@ var GameGrid = new Class({
 		
 		ctx.beginPath();
 		ctx.moveTo(0, 0);
-		for (var row = 0; row < this.numRows; ++row) {
-			for (var col = 0; col < this.numCols; ++col) {
-				var x = row * this.rowHeight;
-				var y = col * this.colWidth;
-				var node = this.gameNodes[row][col];
+		for (var col = 0; col < this.numCols; ++col) {
+			for (var row = 0; row < this.numRows; ++row) {
+				var x = col * this.colWidth;
+				var y = row * this.rowHeight;
+				var node = this.gameNodes[col][row];
 				ctx.fillStyle = node.getColor();
 				ctx.fillRect(x, y, x + this.rowHeight, y + this.colWidth);
 			}
@@ -111,6 +111,18 @@ var GameGrid = new Class({
 		return this.gameNodes[0][0].getColor();
 	},
 	
+	getNode: function(col, row) {
+		if ((col < 0) || (row < 0)) {
+			return null;
+		}
+		
+		if ((col > (this.numCols - 1)) || (row > (this.numRows - 1))) {
+			return null;
+		}
+		
+		return this.gameNodes[col][row];
+	},
+	
 	/**
 	 * Shamelessly stolen from http://en.wikipedia.org/wiki/Flood_fill
 	 */
@@ -138,7 +150,7 @@ var GameGrid = new Class({
 			return;
 		}
 		
-		var node = this.gameNodes[nodeRow][nodeCol];
+		var node = this.gameNodes[nodeCol][nodeRow];
 		if (node.getColor() != targetColor) {
 			return;
 		}
@@ -152,7 +164,7 @@ var GameGrid = new Class({
 		
 	},
 	
-	queueBasedFloodFill: function(nodeRow, nodeCol, targetColor, replacementColor) {
+	queueBasedFloodFill: function(startRow, startCol, targetColor, replacementColor) {
 		/*
 		    Algorithm from same wikipedia article:
 		  	Flood-fill (node, target-colour, replacement-colour):
@@ -174,48 +186,59 @@ var GameGrid = new Class({
 			16.     Remove first element from Q
 			17. Return.
 		 */
+		if (targetColor == replacementColor) {
+			return;
+		}
+		
 		var queue = [];
 		
-		var allNodes = this.gameNodes;
-		var node = allNodes[nodeRow][nodeCol];
+		var node = this.getNode(startCol, startRow);
+		if (node == null) {
+			console.warn("No node found at " + startCol + ", " + startRow);
+			return;
+		}
+		
 		if (node.getColor() != targetColor) {
 			return;
 		}
 		
-		queue.push(node);
+		queue.unshift(node);
 		while (queue.length > 0) {
-			var curNode = queue[0];
+			var curNode = queue.pop();
 			if (curNode.getColor() == targetColor) {
 				curNode.setColor(replacementColor);
-				if (nodeCol > 0) {
-					var westNode = allNodes[nodeRow][nodeCol - 1];
+				
+				var nodeCol = curNode.getX();
+				var nodeRow = curNode.getY();
+				
+				var westNode = this.getNode(nodeCol - 1, nodeRow);
+				if (westNode != null) {
 					if (westNode.getColor() == targetColor) {
-						queue.push(westNode);
+						queue.unshift(westNode);
 					}
-				}
+				} 
 				
-				if (nodeCol < (this.numCols - 1)) {
-					var eastNode = allNodes[nodeRow][nodeCol + 1];
+				var eastNode = this.getNode(nodeCol + 1, nodeRow);
+				if (eastNode != null) {
 					if (eastNode.getColor() == targetColor) {
-						queue.push(eastNode);
+						queue.unshift(eastNode);
 					}
 				}
 				
-				if (nodeRow > 0) {
-					var northNode = allNodes[nodeRow - 1][nodeCol];
+				var northNode = this.getNode(nodeCol, nodeRow - 1);
+				if (northNode != null) {
 					if (northNode.getColor() == targetColor) {
-						queue.push(northNode);
+						queue.unshift(northNode);
 					}
-				}
+				} 
 				
-				if (nodeRow < (this.numRows - 1)) {
-					var southNode = allNodes[nodeRow + 1][nodeCol];
+				var southNode = this.getNode(nodeCol, nodeRow + 1);
+				if (southNode != null) {
 					if (southNode.getColor() == targetColor) {
-						queue.push(southNode);
+						queue.unshift(southNode);
 					}
-				}
+				} 
 			}
-			queue.shift();
 		}
 	}
 });

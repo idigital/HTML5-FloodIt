@@ -240,7 +240,22 @@ var GameGrid = new Class({
 				} 
 			}
 		}
-	}
+	},
+    
+    isBoardInWinState: function() {
+        var allNodes = this.gameNodes;
+        var curColor = this.getCurrentColor();
+        for (var row = 0; row < this.numRows; ++row) {
+            for (var col = 0; col < this.numCols; ++col) {
+                var node = allNodes[row][col];
+                if (node.getColor() != curColor) {
+                    return false;
+                }
+            }
+        }
+        
+        return true;
+    }
 });
 
 var ColorChangedEventArgs = new Class({

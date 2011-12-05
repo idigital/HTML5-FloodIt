@@ -105,6 +105,9 @@ var GameGrid = new Class({
 		this.queueBasedFloodFill(0, 0, oldColor, newColor);
 		var args = new ColorChangedEventArgs(oldColor, newColor);
 		this.fireEvent("onColorChanged", args);
+		if (this.isBoardInWinState()) {
+			this.fireEvent("onGameWin");
+		}
 	},
 	
 	getCurrentColor: function() {

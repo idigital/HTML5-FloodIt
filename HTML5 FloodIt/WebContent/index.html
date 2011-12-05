@@ -7,6 +7,7 @@
 		<link href="./css/main.css" rel="Stylesheet" type="text/css" />
 	</head>
 	<body>
+		<div id="gameState"></div>
 		<canvas id="mainCanvas"></canvas><br />
 		<div id="controlPanelCanvas"></div>
 		
@@ -28,6 +29,7 @@
 				gameGrid = new GameGrid(gameSeed);
 				gameGrid.drawGrid(document.id("mainCanvas"));
 				gameGrid.addEvent("onColorChanged", handleGridColorChanged);
+				gameGrid.addEvent("onGameWin", handleGameWin);
 				
 				controlPanel = new ControlPanel(document.id("controlPanelCanvas"), GameColors);
 				controlPanel.addEvent("onTrigger", handleControlPanelTrigger);
@@ -35,6 +37,10 @@
 			
 			function handleGridColorChanged(args) {
 				gameGrid.drawGrid(document.id("mainCanvas"));
+			}
+			
+			function handleGameWin() {
+				document.id("gameState").set('html', '<h1>You Won!</h1>');
 			}
 			
 			function handleControlPanelTrigger(args) {

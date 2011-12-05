@@ -15,26 +15,66 @@ var GameNode = new Class({
 	getY: function() { return this.y; },
 	
 	getColor: function() { return this.color; },
-	setColor: function(pColor) { this.color = pColor; }
+	setColor: function(pColor) { this.color = pColor; },
+	
+	destroy: function() {
+		this.x = null;
+		this.y = null;
+		this.color = null;
+		
+		delete this.x;
+		delete this.y;
+		delete this.color;
+	}
 });
+
+var DEFAULT_NUM_ROWS = 10;
+var DEFAULT_NUM_COLUMNS = 10;
 
 var GameGrid = new Class({
 	Implements: [Events, Options],
 	
-	numRows: 10,
-	numCols: 10,
+	numRows: null,
+	numCols: null,
 	rowHeight: 32,
 	colWidth: 32,
 	gameNodes: null,
 	gameSeed: 1,
 	nextGameSeed: null,
 	
-	initialize: function(pGameSeed) {
+	initialize: function(pGameSeed, pNumRows, pNumCols) {
 		this.gameSeed = pGameSeed;
 		Math.seedrandom(this.gameSeed);
-		this.gameNodes = new Array(this.numRows);
+		
+		if (this.numRows == null) {
+			this.numRows = Number.from(pNumRows);
+			if (this.numRows == null) {
+				this.numRows = DEFAULT_NUM_ROWS;
+			}
+		}
+
+		if (this.numCols == null) {
+			this.numCols = Number.from(pNumCols);
+			if (this.numCols == null) {
+				this.numCols = DEFAULT_NUM_COLUMNS;
+			}
+		}
+		
+		this.initNodes();
+		
+		this.nextGameSeed = this.gameSeed + 1;
+	},
+	
+	initNodes: function() {
+		// create the game node arrays if necessary.
+		if (this.gameNodes == null) {
+			this.gameNodes = new Array(this.numRows);
+			for (var i = 0; i < this.numCols; ++i) {
+				this.gameNodes[i] = new Array(this.numCols);
+			}
+		}
+		
 		for (var i = 0; i < this.numCols; ++i) {
-			this.gameNodes[i] = new Array(this.numCols);
 			for (var j = 0; j < this.numRows; ++j) {			
 				var randIdx = Math.floor(Math.random() * GameColors.length);
 				var randColor = GameColors[randIdx];
@@ -42,8 +82,26 @@ var GameGrid = new Class({
 				this.gameNodes[i][j] = node;
 			}
 		}
+	},
+	
+	setNumRows: function(pNumRows) {
+		this.numRows = pnumRows;
+		this.eraseGameNodes();
+	},
+	
+	setNumCols: function(pNumCols) {
+		this.numCols = pNumCols;
+		this.eraseGameNodes();
+	},
+	
+	eraseGameNodes: function() {
+		if (this.gameNodes == null) {
+			return;
+		}
 		
-		this.nextGameSeed = this.gameSeed + 1;
+		// nullify the gameNodes array so it's rebuilt
+		// with new dimensions on next initialize.
+		this.gameNodes = null;
 	},
 	
 	getGridWidth: function() { return this.colWidth * this.numCols; },

@@ -12,6 +12,7 @@
 		<div id="controlPanelCanvas"></div>
 		
 		<script type="text/javascript" src="./js/seedrandom-min.js"></script>
+		<script type="text/javascript" src="./js/game/PlayerStats.js"></script>
 		<script type="text/javascript" src="./js/game/GameGrid.js"></script>
 		<script type="text/javascript" src="./js/game/ControlPanel.js"></script>
 
@@ -20,6 +21,8 @@
 			var controlPanel;
 			
 			var gameSeed = null;
+			
+			var playerStats = null;
 			
 			window.addEvent("domready", function() {
 				if (gameSeed == null) {
@@ -33,6 +36,9 @@
 				
 				controlPanel = new ControlPanel(document.id("controlPanelCanvas"), GameColors);
 				controlPanel.addEvent("onTrigger", handleControlPanelTrigger);
+				
+				playerStats = new PlayerStats(gameSeed);
+				//playerStats.addEvent("onStepCountChanged", handleStepCountChanged);
 			});
 			
 			function handleGridColorChanged(args) {
@@ -47,7 +53,13 @@
 				var color = args.color;
 				if (color != gameGrid.getCurrentColor()) {
 					gameGrid.changeColor(args.color);
+					playerStats.incrementStepCount();
+					console.log("New Step Count: " + playerStats.getStepCount());
 				}
+			}
+			
+			function handleStepCountChanged(args) {
+				console.log("New Step Count: " + args.getNewStepCount());
 			}
 		</script>
 	</body>

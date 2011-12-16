@@ -7,7 +7,14 @@
 		<link href="./css/main.css" rel="Stylesheet" type="text/css" />
 	</head>
 	<body>
-		<div id="gameState"></div>
+		<div id="gameState">
+			<div id="winState" style="display: none;">
+				<h1>You Won!</h1>
+			</div>
+			<div>
+				<strong>Steps: </strong> <span id="stepCount">0</span>
+			</div>
+		</div>
 		<canvas id="mainCanvas"></canvas><br />
 		<div id="controlPanelCanvas"></div>
 		
@@ -46,7 +53,7 @@
 			}
 			
 			function handleGameWin() {
-				document.id("gameState").set('html', '<h1>You Won!</h1>');
+				document.id("winState").setStyle("display", "block");
 			}
 			
 			function handleControlPanelTrigger(args) {
@@ -59,7 +66,7 @@
 			}
 			
 			function handleStepCountChanged(args) {
-				console.log("New Step Count: " + args.getNewStepCount());
+				document.id("stepCount").set("html", args.getNewStepCount());
 			}
 		</script>
 	</body>

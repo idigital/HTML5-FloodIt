@@ -22,7 +22,7 @@
 			
 			var gameSeed = null;
 			
-			var playerStats = null;
+			var playerStats;
 			
 			window.addEvent("domready", function() {
 				if (gameSeed == null) {
@@ -38,7 +38,7 @@
 				controlPanel.addEvent("onTrigger", handleControlPanelTrigger);
 				
 				playerStats = new PlayerStats(gameSeed);
-				//playerStats.addEvent("onStepCountChanged", handleStepCountChanged);
+				playerStats.addEvent("onStepCountChanged", handleStepCountChanged);
 			});
 			
 			function handleGridColorChanged(args) {

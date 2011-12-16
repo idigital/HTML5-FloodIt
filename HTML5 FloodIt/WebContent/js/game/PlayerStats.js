@@ -1,4 +1,4 @@
-var PlayerStats = Class({
+var PlayerStats = new Class({
 	Implements: Events,
 	gameSeed: null,
 	stepCount: 0,

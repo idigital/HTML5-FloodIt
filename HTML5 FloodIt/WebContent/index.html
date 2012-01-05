@@ -7,6 +7,7 @@
 		<link href="./css/main.css" rel="Stylesheet" type="text/css" />
 		
 		<script type="text/javascript" src="./js/mootools/mootools-core-1.4.1-full-compat.js"></script>
+		<script type="text/javascript" src="./js/mootools/mootools-more-1.4.0.1.js"></script>
 		
 	</head>
 	<body>
@@ -36,6 +37,8 @@
 			var playerStats;
 			
 			window.addEvent("domready", function() {
+				var uri = new URI(window.location);
+				gameSeed = uri.getData('board');
 				if (gameSeed == null) {
 					gameSeed = 1;
 				}

@@ -11,17 +11,20 @@
 		
 	</head>
 	<body>
-		<h1 class="title">HTML5 FloodIt!</h1>
-		<div id="gameState">
-			<div id="winState" style="display: none; font-size: 16pt;">
-				<strong>You Won!</strong>
+		<div style="text-align: center">
+			<h1 class="title">HTML5 FloodIt!</h1>
+			<div id="gameState">
+				<div id="winState" style="display: none; font-size: 16pt;">
+					<strong>You Won!</strong>
+				</div>
+				<div>
+					<strong>Steps: </strong> <span id="stepCount">0</span>
+				</div>
 			</div>
-			<div>
-				<strong>Steps: </strong> <span id="stepCount">0</span>
-			</div>
+			<canvas id="mainCanvas"></canvas><br />
+			<div id="controlPanelCanvas"></div>
+			<input id="randomBoardButton" type="button" value="Random Board" />
 		</div>
-		<canvas id="mainCanvas"></canvas><br />
-		<div id="controlPanelCanvas"></div>
 		
 		<script type="text/javascript" src="./js/seedrandom-min.js"></script>
 		<script type="text/javascript" src="./js/game/PlayerStats.js"></script>
@@ -36,6 +39,9 @@
 			
 			var playerStats;
 			
+			var mainCanvas;
+			var randomBoardButton;
+			
 			window.addEvent("domready", function() {
 				var uri = new URI(window.location);
 				gameSeed = uri.getData('board');
@@ -43,8 +49,10 @@
 					gameSeed = 1;
 				}
 				
+				mainCanvas = document.id("mainCanvas");
+				
 				gameGrid = new GameGrid(gameSeed);
-				gameGrid.drawGrid(document.id("mainCanvas"));
+				gameGrid.drawGrid(mainCanvas);
 				gameGrid.addEvent("onColorChanged", handleGridColorChanged);
 				gameGrid.addEvent("onGameWin", handleGameWin);
 				
@@ -53,10 +61,25 @@
 				
 				playerStats = new PlayerStats(gameSeed);
 				playerStats.addEvent("onStepCountChanged", handleStepCountChanged);
+				
+				randomBoardButton = document.id("randomBoardButton");
+				randomBoardButton.addEvent("click", randomizeBoard);
 			});
 			
+			function randomizeBoard() {
+				if (!confirm("Are you sure you want to scrap this and get a completely new board?")) {
+					return;
+				}
+				
+				Math.seedrandom();
+				gameSeed = Math.random();
+				gameGrid.initialize(gameSeed);
+				gameGrid.drawGrid(mainCanvas);
+				playerStats.setStepCount(0);
+			}
+			
 			function handleGridColorChanged(args) {
-				gameGrid.drawGrid(document.id("mainCanvas"));
+				gameGrid.drawGrid(mainCanvas);
 			}
 			
 			function handleGameWin() {
